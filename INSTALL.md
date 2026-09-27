@@ -158,7 +158,7 @@ docker rm -f csc4801-teamzzz
 ## Clean-Checkout Verification Before Submission
 
 ~~~bash
-git clone https://github.com/Arvin-Chaser/CSC4801_TeamZzz.git
+git clone https://github.com/shenyuwu100-netizen/CSC4801_TeamZzz.git
 cd CSC4801_TeamZzz
 git checkout main
 docker build -t csc4801-teamzzz .
