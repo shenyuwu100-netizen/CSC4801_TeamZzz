@@ -4,6 +4,12 @@
 项目：TalentMatch / CSC4801_TeamZzz  
 用途：给组员快速理解项目、分工复核、后续课程验收和展示准备。
 
+在线演示：https://csc4801.wushenyu.com
+
+GitHub：https://github.com/shenyuwu100-netizen/CSC4801_TeamZzz
+
+在线演示使用独立的合成数据环境，每天自动重置；请不要输入真实个人信息。正式课程交付仍以 GitHub 固定 commit 与 Docker 可复现流程为准。
+
 ## 1. 这个项目在干什么
 
 这是一个浏览器端可运行的招聘与候选人匹配平台。
@@ -168,9 +174,9 @@ Employer 可以：
 ### 本机
 
 - Contract regression：14 / 14 passed
-- 其余 auth/matching/security/workflow：16 / 16 passed
+- 其余 auth/matching/security/workflow：17 / 17 passed
 - scheduling：6 / 6 passed
-- 合计：**36 / 36 passed**
+- 合计：**37 / 37 passed**
 - `git diff --check`：通过
 
 ### Docker
@@ -179,9 +185,18 @@ Employer 可以：
 - `flask --app recruiting reset-seed`：通过
 - `/healthz`：返回 `{"ok":true}`
 - Contract regression：14 / 14 passed
-- 其余 auth/matching/security/workflow：16 / 16 passed
+- 其余 auth/matching/security/workflow：17 / 17 passed
 - scheduling：6 / 6 passed
-- 合计：**36 / 36 passed**
+- 合计：**37 / 37 passed**
+
+### 在线演示
+
+- `https://csc4801.wushenyu.com`：公网 HTTPS 访问正常。
+- `http://csc4801.wushenyu.com`：308 跳转 HTTPS。
+- 公网容器只绑定 `127.0.0.1:18084`，外部入口仅通过 Cloudflare Tunnel。
+- demo 数据库与本地开发/测试数据库隔离。
+- 容器重启会自动 `reset-seed`，Windows 计划任务每天 04:00 再执行一次确定性重置。
+- demo session cookie 使用 `Secure + HttpOnly + SameSite=Lax`。
 
 ### 课程规范
 

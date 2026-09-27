@@ -1,0 +1,44 @@
+services:
+  talentmatch:
+    build:
+      context: ../..
+    image: csc4801-teamzzz-demo:local
+    container_name: csc4801-teamzzz-demo
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:18084:8080"
+    environment:
+      DATABASE_PATH: /data/recruiting.sqlite3
+      SECRET_KEY: ${DEMO_SECRET_KEY}
+      DEMO_MODE: "true"
+      SESSION_COOKIE_SECURE: "true"
+    volumes:
+      - csc4801_demo_data:/data
+    command:
+      - /bin/sh
+      - -lc
+      - flask --app recruiting reset-seed && exec waitress-serve --call --listen=0.0.0.0:8080 recruiting:create_app
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 256m
+    cpus: 1.0
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json; from urllib.request import urlopen; assert json.load(urlopen('http://127.0.0.1:8080/healthz', timeout=3)) == {'ok': True}"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  csc4801_demo_data:

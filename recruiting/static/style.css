@@ -6,6 +6,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
+.demo-banner { padding: 8px 5vw; background: #fff7d6; border-bottom: 1px solid #eadb9a; color: #66561b; text-align: center; font-size: .88rem; font-weight: 650; }
 a { color: #1959c7; text-decoration: none; }
 a:hover { text-decoration: underline; }
 .topbar {

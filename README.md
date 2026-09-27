@@ -6,6 +6,10 @@ Group name: **Zzz**
 
 Project repository: https://github.com/shenyuwu100-netizen/CSC4801_TeamZzz
 
+Live demo: https://csc4801.wushenyu.com
+
+The public demo uses deterministic synthetic data, resets daily, and must not be used for real personal data. The graded artifact remains the GitHub commit and its reproducible Docker workflow.
+
 ## Architecture Summary
 
 - Browser UI: server-rendered Jinja templates with automatic HTML escaping.
@@ -91,6 +95,7 @@ The complete suite is non-interactive and exits nonzero on failure. Regression t
 - PEER_REVIEW.md — course peer-audit procedure.
 - DOCKER.md — course Docker expectations.
 - TEAM_GUIDE.md — code tour and common safe modifications.
+- deploy/demo/README.md — isolated public-demo deployment and safety model.
 - .github/ISSUE_TEMPLATE/audit_bug_report.yml — required audit issue form.
 - .github/labels.yml — required audit label definitions.
 

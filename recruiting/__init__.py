@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, redirect, render_template, request
 
 from . import db
 
@@ -20,8 +20,11 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY") or secrets.token_hex(32),
         DATABASE=str(default_db),
+        DEMO_MODE=os.environ.get("DEMO_MODE", "").strip().lower() in {"1", "true", "yes", "on"},
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "").strip().lower()
+        in {"1", "true", "yes", "on"},
     )
     if test_config:
         app.config.update(test_config)
@@ -36,6 +39,15 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(candidate_bp)
     app.register_blueprint(employer_bp)
+
+    @app.before_request
+    def enforce_demo_https():
+        forwarded_proto = request.headers.get("X-Forwarded-Proto", "").lower()
+        cf_visitor = request.headers.get("CF-Visitor", "").replace(" ", "").lower()
+        if app.config["DEMO_MODE"] and (
+            forwarded_proto == "http" or '"scheme":"http"' in cf_visitor
+        ):
+            return redirect(request.url.replace("http://", "https://", 1), code=308)
 
     @app.get("/")
     def home():

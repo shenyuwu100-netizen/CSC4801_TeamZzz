@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from recruiting import create_app
 from recruiting.db import transaction
 from recruiting.services import search_jobs
 
@@ -68,3 +69,40 @@ def test_fp_sec_4_secrets_and_test_isolation(app):
     text = env_example.read_text(encoding="utf-8")
     assert "sk-" not in text
     assert "Bearer " not in text
+
+
+def test_public_demo_banner_and_secure_session_cookie(tmp_path):
+    app = create_app(
+        {
+            "TESTING": True,
+            "DATABASE": str(tmp_path / "demo.sqlite3"),
+            "SECRET_KEY": "demo-test-secret",
+            "DEMO_MODE": True,
+            "SESSION_COOKIE_SECURE": True,
+        }
+    )
+    client = app.test_client()
+
+    homepage = client.get("/")
+    assert "Public course demo" in homepage.get_data(as_text=True)
+
+    insecure = client.get(
+        "/",
+        headers={"Host": "csc4801.wushenyu.com", "X-Forwarded-Proto": "http"},
+    )
+    assert insecure.status_code == 308
+    assert insecure.headers["Location"] == "https://csc4801.wushenyu.com/"
+
+    cloudflare_http = client.get(
+        "/",
+        headers={"Host": "csc4801.wushenyu.com", "CF-Visitor": '{"scheme":"http"}'},
+    )
+    assert cloudflare_http.status_code == 308
+    assert cloudflare_http.headers["Location"] == "https://csc4801.wushenyu.com/"
+
+    response = client.post(
+        "/auth/register",
+        data={"username": "secure-cookie", "password": "StrongPass123!", "role": "Candidate"},
+    )
+    assert response.status_code == 302
+    assert "Secure" in response.headers.get("Set-Cookie", "")
