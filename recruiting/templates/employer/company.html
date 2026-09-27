@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Company profile · TalentMatch{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Employer</p>
+  <h1>Company profile</h1>
+  <form method="post" class="stack">
+    <label>Company name<input name="company_name" value="{{ company.company_name }}" required></label>
+    <label>Description<textarea name="description" rows="8">{{ company.description }}</textarea></label>
+    <button class="button" type="submit">Save company profile</button>
+  </form>
+</section>
+{% endblock %}

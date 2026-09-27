@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Resume · TalentMatch{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Private to you</p>
+  <h1>Raw-text resume</h1>
+  <form method="post" class="stack">
+    <label>Resume text<textarea name="resume_text" rows="16" placeholder="Paste your resume as plain text">{{ profile.resume_text }}</textarea></label>
+    <button class="button" type="submit">Replace resume</button>
+  </form>
+</section>
+{% endblock %}

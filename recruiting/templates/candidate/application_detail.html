@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Application · TalentMatch{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">{{ application.company_name }}</p>
+  <h1>{{ application.title }}</h1>
+  <p>Status: <span class="pill">{{ application.status }}</span></p>
+  {% if application.booked_start %}
+    <div class="notice"><strong>Interview booked</strong><br>{{ application.booked_start|localtime }}–{{ application.booked_end|localtime }}</div>
+  {% elif application.status == 'Interviewing' %}
+    <h2>Available interview slots</h2>
+    <div class="slot-grid">
+      {% for slot in available_slots %}
+        <form method="post" action="{{ url_for('candidate.book', application_id=application.id, slot_id=slot.id) }}" class="slot">
+          <strong>{{ slot.start_at|localtime }}</strong>
+          <span>30 minutes</span>
+          <button class="button small" type="submit">Book</button>
+        </form>
+      {% else %}<p class="muted">No available slots for this job.</p>{% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">Interview booking becomes available when the employer sets this application to Interviewing.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Applicants · {{ job.title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Applicant management</p><h1>{{ job.title }}</h1></div></div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Candidate</th><th>Skills</th><th>Match</th><th>Status</th><th>Interview</th><th>Update</th></tr></thead>
+  <tbody>
+  {% for item in applicants %}
+    <tr>
+      <td><strong>{{ item.display_name }}</strong><br><span class="muted">{{ item.username }}</span></td>
+      <td>{{ item.skills|join(', ') if item.skills else 'None' }}</td>
+      <td><strong>{{ item.match_score }}%</strong></td>
+      <td>{{ item.status }}</td>
+      <td>{{ item.interview_start|localtime if item.interview_start else 'Not booked' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('employer.application_status', application_id=item.application_id) }}" class="inline">
+          <select name="status">{% for status in statuses %}<option value="{{ status }}" {% if status == item.status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select>
+          <button class="button small" type="submit">Save</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="6">No applicants.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

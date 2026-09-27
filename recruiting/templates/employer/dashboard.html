@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Employer dashboard · TalentMatch{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">{{ company.company_name }}</p><h1>Employer dashboard</h1></div>
+  <div class="actions"><a class="button secondary" href="{{ url_for('employer.company') }}">Company profile</a><a class="button" href="{{ url_for('employer.job_new') }}">Post job</a></div>
+</div>
+
+<h2>Your jobs</h2>
+<div class="card-list">
+  {% for job in jobs %}
+    <article class="panel">
+      <div class="job-title-row"><h3>{{ job.title }}</h3><span class="pill">{{ job.application_count }} applicant(s)</span></div>
+      <p>{{ job.description }}</p>
+      <div class="actions">
+        <a href="{{ url_for('employer.applicants', job_id=job.id) }}">Applicants</a>
+        <a href="{{ url_for('employer.job_edit', job_id=job.id) }}">Edit</a>
+        <form class="inline" method="post" action="{{ url_for('employer.job_delete', job_id=job.id) }}"><button class="link-button danger" type="submit">Delete</button></form>
+      </div>
+    </article>
+  {% else %}<div class="empty">No jobs yet.</div>{% endfor %}
+</div>
+
+<section class="panel">
+  <h2>Create 30-minute interview availability</h2>
+  <form method="post" action="{{ url_for('employer.slot_create') }}" class="form-grid">
+    <label>Job
+      <select name="job_id" required>
+        {% for job in jobs %}<option value="{{ job.id }}">{{ job.title }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Start (Asia/Shanghai)<input type="datetime-local" name="start_at" required></label>
+    <label>End (Asia/Shanghai)<input type="datetime-local" name="end_at" required></label>
+    <button class="button" type="submit" {% if not jobs %}disabled{% endif %}>Create slot</button>
+  </form>
+
+  <h3>Slots</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Job</th><th>Start</th><th>End</th><th>State</th><th></th></tr></thead>
+      <tbody>
+      {% for slot in slots %}
+        <tr>
+          <td>{{ slot.title }}</td>
+          <td>{{ slot.start_at|localtime }}</td><td>{{ slot.end_at|localtime }}</td>
+          <td>{{ 'Booked' if slot.application_id else 'Available' }}</td>
+          <td>
+            <form method="post" action="{{ url_for('employer.slot_delete', slot_id=slot.id) }}">
+              <button class="link-button danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}<tr><td colspan="5">No interview slots.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

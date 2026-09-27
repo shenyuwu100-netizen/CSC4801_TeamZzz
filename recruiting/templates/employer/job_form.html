@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit job' if job else 'Post job' }} · TalentMatch{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Employer</p>
+  <h1>{{ 'Edit job' if job else 'Post a job' }}</h1>
+  <form method="post" class="stack">
+    <label>Title<input name="title" value="{{ job.title if job else '' }}" required></label>
+    <label>Description<textarea name="description" rows="9" required>{{ job.description if job else '' }}</textarea></label>
+    <label>Required skills<input name="required_skills" value="{{ skills }}" placeholder="Python, SQL"></label>
+    <button class="button" type="submit">{{ 'Save changes' if job else 'Create job' }}</button>
+  </form>
+</section>
+{% endblock %}

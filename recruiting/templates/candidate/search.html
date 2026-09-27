@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Search jobs · TalentMatch{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Candidate</p><h1>Search jobs</h1></div></div>
+<form method="get" class="search-row">
+  <input name="q" value="{{ query }}" placeholder="Job title, description, or company">
+  <button class="button" type="submit">Search</button>
+</form>
+{% if query %}
+  <p class="muted">{{ jobs|length }} result(s) for “{{ query }}”.</p>
+  <div class="card-list">
+    {% for job in jobs %}
+      <article class="panel"><h2>{{ job.title }}</h2><p class="pill">{{ job.company_name }}</p><p>{{ job.description }}</p><a href="{{ url_for('candidate.job_detail', job_id=job.id) }}">View job →</a></article>
+    {% else %}<div class="empty">No matching jobs.</div>{% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}TalentMatch · Recruiting made transparent{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">CSC4801 · Team Zzz</p>
+  <h1>Recruiting that shows its work.</h1>
+  <p class="lead">Candidates see deterministic match scores, employers manage applicants, and interview bookings remain safe under concurrent use.</p>
+  <div class="hero-actions">
+    {% if g.user %}
+      <a class="button" href="{{ url_for('candidate.dashboard') if g.user['role'] == 'Candidate' else url_for('employer.dashboard') }}">Open dashboard</a>
+    {% else %}
+      <a class="button" href="{{ url_for('auth.register') }}">Create account</a>
+      <a class="button secondary" href="{{ url_for('auth.login') }}">Use demo account</a>
+    {% endif %}
+  </div>
+</section>
+<section class="feature-grid">
+  <article><h2>Deterministic matching</h2><p>Skill overlap is normalized, transparent, and shared by both sides of the marketplace.</p></article>
+  <article><h2>Server-side authorization</h2><p>Roles and ownership are enforced on every protected operation, not merely hidden in the UI.</p></article>
+  <article><h2>Atomic booking</h2><p>Database transactions and uniqueness constraints ensure that one interview slot can have only one winner.</p></article>
+</section>
+{% endblock %}

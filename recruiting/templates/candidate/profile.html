@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Candidate profile · TalentMatch{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="page-heading"><div><p class="eyebrow">Private candidate profile</p><h1>Your profile</h1></div><a href="{{ url_for('candidate.resume', candidate_id=g.user['id']) }}">Edit resume →</a></div>
+  <form method="post" class="stack">
+    <label>Display name<input name="display_name" value="{{ profile.display_name }}" required></label>
+    <label>Technical skills<input name="skills" value="{{ skills }}" placeholder="Python, SQL, Docker"></label>
+    <p class="muted">Separate skills with commas, semicolons, or new lines. Matching is case-insensitive and removes duplicates.</p>
+    <button class="button" type="submit">Save profile</button>
+  </form>
+</section>
+{% endblock %}

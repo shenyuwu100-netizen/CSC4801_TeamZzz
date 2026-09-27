@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TalentMatch{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('home') }}">TalentMatch</a>
+    <nav>
+      {% if g.user %}
+        <span class="identity">{{ g.user['username'] }} · {{ g.user['role'] }}</span>
+        {% if g.user['role'] == 'Candidate' %}
+          <a href="{{ url_for('candidate.dashboard') }}">Jobs</a>
+          <a href="{{ url_for('candidate.applications') }}">Applications</a>
+          <a href="{{ url_for('candidate.profile') }}">Profile</a>
+        {% else %}
+          <a href="{{ url_for('employer.dashboard') }}">Employer</a>
+          <a href="{{ url_for('employer.company') }}">Company</a>
+        {% endif %}
+        <form class="inline" method="post" action="{{ url_for('auth.logout') }}">
+          <button class="link-button" type="submit">Log out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Log in</a>
+        <a class="button small" href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

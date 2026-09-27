@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} · TalentMatch{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">{{ job.company_name }}</p>
+  <h1>{{ job.title }}</h1>
+  <p><strong>Required skills:</strong> {{ required_skills|join(', ') if required_skills else 'None' }}</p>
+  <div class="prose">{{ job.description }}</div>
+  {% if applied %}
+    <p class="muted">You already applied to this job.</p>
+  {% else %}
+    <form method="post" action="{{ url_for('candidate.apply', job_id=job.id) }}">
+      <button class="button" type="submit">Apply now</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

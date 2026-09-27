@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Read the `PEER_REVIEW.md` first and search existing issues before filing. Audit the latest commit on the target team's `main` branch, built from the repository's `Dockerfile`. Never post credentials or personal data. After submitting, add exactly one `type:*` label matching your selection below.
+        Read the course `final_project/PEER_REVIEW.md` first and search existing issues before filing. Audit the latest commit on the target team's `main` branch, built from the repository's `Dockerfile`. Never post credentials or personal data. After submitting, add exactly one `type:*` label matching your selection below.
   - type: input
     id: reporting-team
     attributes:

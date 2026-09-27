@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Recommended jobs · TalentMatch{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">Candidate dashboard</p><h1>Recommended jobs</h1></div>
+  <a class="button secondary" href="{{ url_for('candidate.search') }}">Search jobs</a>
+</div>
+<p class="muted">All current jobs are ranked by the required deterministic skill-overlap score.</p>
+<div class="card-list">
+  {% for job in jobs %}
+    <article class="job-card">
+      <div class="score">{{ job.match_score }}<span>%</span></div>
+      <div class="job-body">
+        <div class="job-title-row"><h2>{{ job.title }}</h2><span class="pill">{{ job.company_name }}</span></div>
+        <p><strong>Required skills:</strong> {{ job.required_skills|join(', ') if job.required_skills else 'None' }}</p>
+        <p>{{ job.description }}</p>
+        <a href="{{ url_for('candidate.job_detail', job_id=job.id) }}">View job →</a>
+      </div>
+    </article>
+  {% else %}
+    <div class="empty">No jobs are currently available.</div>
+  {% endfor %}
+</div>
+{% endblock %}
