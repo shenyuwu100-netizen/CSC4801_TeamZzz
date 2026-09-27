@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from flask import Flask, jsonify, redirect, render_template, request
 
 from . import db
+from .demo_guard import install_demo_guard
 
 
 APP_TZ = ZoneInfo("Asia/Shanghai")
@@ -25,6 +26,14 @@ def create_app(test_config: dict | None = None) -> Flask:
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "").strip().lower()
         in {"1", "true", "yes", "on"},
+        DEMO_LOGIN_PER_MINUTE=int(os.environ.get("DEMO_LOGIN_PER_MINUTE", "20")),
+        DEMO_REGISTER_PER_MINUTE=int(os.environ.get("DEMO_REGISTER_PER_MINUTE", "8")),
+        DEMO_WRITE_PER_MINUTE=int(os.environ.get("DEMO_WRITE_PER_MINUTE", "60")),
+        DEMO_MAX_USERS=int(os.environ.get("DEMO_MAX_USERS", "100")),
+        DEMO_MAX_JOBS=int(os.environ.get("DEMO_MAX_JOBS", "300")),
+        DEMO_MAX_APPLICATIONS=int(os.environ.get("DEMO_MAX_APPLICATIONS", "2000")),
+        DEMO_MAX_SLOTS=int(os.environ.get("DEMO_MAX_SLOTS", "1000")),
+        DEMO_MAX_REQUEST_BYTES=int(os.environ.get("DEMO_MAX_REQUEST_BYTES", "65536")),
     )
     if test_config:
         app.config.update(test_config)
@@ -39,6 +48,7 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(candidate_bp)
     app.register_blueprint(employer_bp)
+    install_demo_guard(app)
 
     @app.before_request
     def enforce_demo_https():
@@ -73,6 +83,8 @@ def create_app(test_config: dict | None = None) -> Flask:
     @app.errorhandler(403)
     @app.errorhandler(404)
     @app.errorhandler(409)
+    @app.errorhandler(413)
+    @app.errorhandler(429)
     def http_error(error):
         return render_template(
             "error.html",

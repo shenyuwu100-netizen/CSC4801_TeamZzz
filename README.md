@@ -8,7 +8,7 @@ Project repository: https://github.com/shenyuwu100-netizen/CSC4801_TeamZzz
 
 Live demo: https://csc4801.wushenyu.com
 
-The public demo uses deterministic synthetic data, resets daily, and must not be used for real personal data. The graded artifact remains the GitHub commit and its reproducible Docker workflow.
+The public demo uses synthetic data, preserves normal demo activity across restarts, and can be manually reset to the deterministic seed before a presentation. Do not enter real personal data. The graded artifact remains the GitHub commit and its reproducible Docker workflow.
 
 ## Architecture Summary
 

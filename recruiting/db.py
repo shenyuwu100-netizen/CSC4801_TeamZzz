@@ -107,8 +107,25 @@ def ensure_demo_user_command() -> None:
     click.echo("Deployment demo user ensured.")
 
 
+@click.command("bootstrap-demo")
+@with_appcontext
+def bootstrap_demo_command() -> None:
+    from .seed import seed_demo_data
+
+    database = get_db()
+    user_count = database.execute("SELECT COUNT(*) AS n FROM users").fetchone()["n"]
+    if user_count == 0:
+        seed_demo_data(database)
+        click.echo("Fresh demo database seeded.")
+    else:
+        click.echo("Existing demo database preserved.")
+
+    click.get_current_context().invoke(ensure_demo_user_command)
+
+
 def init_app(app: Flask) -> None:
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(reset_seed_command)
     app.cli.add_command(ensure_demo_user_command)
+    app.cli.add_command(bootstrap_demo_command)

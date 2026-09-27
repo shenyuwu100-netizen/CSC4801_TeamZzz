@@ -16,12 +16,20 @@ services:
       DEMO_PERSONAL_USERNAME: ${DEMO_PERSONAL_USERNAME:-}
       DEMO_PERSONAL_PASSWORD: ${DEMO_PERSONAL_PASSWORD:-}
       DEMO_PERSONAL_ROLE: ${DEMO_PERSONAL_ROLE:-Candidate}
+      DEMO_LOGIN_PER_MINUTE: ${DEMO_LOGIN_PER_MINUTE:-20}
+      DEMO_REGISTER_PER_MINUTE: ${DEMO_REGISTER_PER_MINUTE:-8}
+      DEMO_WRITE_PER_MINUTE: ${DEMO_WRITE_PER_MINUTE:-60}
+      DEMO_MAX_USERS: ${DEMO_MAX_USERS:-100}
+      DEMO_MAX_JOBS: ${DEMO_MAX_JOBS:-300}
+      DEMO_MAX_APPLICATIONS: ${DEMO_MAX_APPLICATIONS:-2000}
+      DEMO_MAX_SLOTS: ${DEMO_MAX_SLOTS:-1000}
+      DEMO_MAX_REQUEST_BYTES: ${DEMO_MAX_REQUEST_BYTES:-65536}
     volumes:
       - csc4801_demo_data:/data
     command:
       - /bin/sh
       - -lc
-      - flask --app recruiting reset-seed && flask --app recruiting ensure-demo-user && exec waitress-serve --call --listen=0.0.0.0:8080 recruiting:create_app
+      - flask --app recruiting bootstrap-demo && exec waitress-serve --call --listen=0.0.0.0:8080 recruiting:create_app
     read_only: true
     tmpfs:
       - /tmp

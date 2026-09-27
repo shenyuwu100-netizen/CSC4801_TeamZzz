@@ -176,8 +176,9 @@ Employer 可以：
 - Contract regression：14 / 14 passed
 - 其余 auth/matching/security/workflow：17 / 17 passed
 - scheduling：6 / 6 passed
-- deployment demo account：2 / 2 passed
-- 合计：**39 / 39 passed**
+- deployment demo account / bootstrap：3 / 3 passed
+- public demo abuse guard：5 / 5 passed
+- 合计：**45 / 45 passed**
 - `git diff --check`：通过
 
 ### Docker
@@ -188,8 +189,9 @@ Employer 可以：
 - Contract regression：14 / 14 passed
 - 其余 auth/matching/security/workflow：17 / 17 passed
 - scheduling：6 / 6 passed
-- deployment demo account：2 / 2 passed
-- 合计：**39 / 39 passed**
+- deployment demo account / bootstrap：3 / 3 passed
+- public demo abuse guard：5 / 5 passed
+- 合计：**45 / 45 passed**
 
 ### 在线演示
 
@@ -197,9 +199,10 @@ Employer 可以：
 - `http://csc4801.wushenyu.com`：308 跳转 HTTPS。
 - 公网容器只绑定 `127.0.0.1:18084`，外部入口仅通过 Cloudflare Tunnel。
 - demo 数据库与本地开发/测试数据库隔离。
-- 容器重启会自动 `reset-seed`，Windows 计划任务每天 04:00 再执行一次确定性重置。
+- 容器普通重启不再清空数据；仅首次空数据库自动 seed，之后需要时手动执行 `reset-demo.ps1` 恢复标准演示数据。
 - demo session cookie 使用 `Secure + HttpOnly + SameSite=Lax`。
-- deployment-only 固定 demo 账号由未跟踪的 `.env` 提供，reset/restart 后自动恢复，真实账号配置不会提交到 GitHub。
+- deployment-only 固定 demo 账号由未跟踪的 `.env` 提供，手动 reset 和容器启动时自动确保存在，真实账号配置不会提交到 GitHub。
+- 公网 demo 对登录、注册和写操作做按 IP 限流，并限制用户/岗位/申请/时段总量，防止恶意脚本无限刷数据库；这些限制只在 `DEMO_MODE` 生效。
 
 ### 课程规范
 

@@ -12,8 +12,8 @@ This deployment is intentionally separate from the development/test database.
 - Cloudflare Tunnel is the only public ingress.
 - Public HTTP requests are redirected to HTTPS; demo session cookies are Secure, HttpOnly, and SameSite=Lax.
 - The demo uses a dedicated Docker volume.
-- Container startup runs `reset-seed`, so a restart always restores deterministic synthetic data.
-- The Windows deployment host also runs a daily reset task.
+- Container startup preserves the existing demo database; a fresh empty volume is seeded once.
+- Demo data is reset only when `reset-demo.ps1` is run manually (for example before a presentation).
 - The container runs without Linux capabilities, with `no-new-privileges`, a read-only root filesystem, and basic CPU/memory/PID limits.
 - The live site is demonstration-only. Do not enter real personal data.
 
@@ -41,7 +41,19 @@ Local origin health:
 http://127.0.0.1:18084/healthz
 ```
 
-The host scripts under `deploy/windows/` are used by Windows Task Scheduler to recover the service after login and reset demo data daily.
+The host startup script is used by Windows Task Scheduler to recover the service after login. The reset script is intentionally manual so normal use survives restarts.
+
+## Abuse protection
+
+The public demo adds deployment-only guard rails without changing the normal coursework behavior:
+
+- login: 20 POST attempts per minute per client IP;
+- registration: 8 POST attempts per minute per client IP;
+- other write operations: 60 per minute per client IP;
+- maximum request body: 64 KiB;
+- capacity limits: 100 users, 300 jobs, 2,000 applications, and 1,000 interview slots.
+
+When a limit is reached the demo returns HTTP 429. These limits apply only in `DEMO_MODE`; local/coursework runs are unaffected. Cloudflare Tunnel remains the only public ingress, so the origin port is not exposed directly.
 
 ## Manual reset
 
