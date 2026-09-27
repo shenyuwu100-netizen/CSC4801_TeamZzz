@@ -72,40 +72,38 @@ def create_slot(conn, employer_id: int, job_id: int, start_at: datetime, end_at:
 
 
 def delete_slot(conn, employer_id: int, slot_id: int) -> None:
-    slot = conn.execute(
-        "SELECT id, employer_id FROM interview_slots WHERE id = ?",
-        (slot_id,),
-    ).fetchone()
-    if slot is None:
-        raise DomainError("Interview slot not found", 404)
-    if slot["employer_id"] != employer_id:
-        raise DomainError("Forbidden", 403)
-    booked = conn.execute("SELECT 1 FROM bookings WHERE slot_id = ?", (slot_id,)).fetchone()
-    if booked:
-        raise DomainError("Booked slots cannot be deleted", 409)
-    with transaction(conn):
+    with transaction(conn, immediate=True):
+        slot = conn.execute(
+            "SELECT id, employer_id FROM interview_slots WHERE id = ?",
+            (slot_id,),
+        ).fetchone()
+        if slot is None:
+            raise DomainError("Interview slot not found", 404)
+        if slot["employer_id"] != employer_id:
+            raise DomainError("Forbidden", 403)
+        booked = conn.execute("SELECT 1 FROM bookings WHERE slot_id = ?", (slot_id,)).fetchone()
+        if booked:
+            raise DomainError("Booked slots cannot be deleted", 409)
         conn.execute("DELETE FROM interview_slots WHERE id = ?", (slot_id,))
 
 
 def delete_job(conn, employer_id: int, job_id: int) -> None:
-    job = conn.execute("SELECT id, employer_id FROM jobs WHERE id = ?", (job_id,)).fetchone()
-    if job is None:
-        raise DomainError("Job not found", 404)
-    if job["employer_id"] != employer_id:
-        raise DomainError("Forbidden", 403)
+    with transaction(conn, immediate=True):
+        job = conn.execute("SELECT id, employer_id FROM jobs WHERE id = ?", (job_id,)).fetchone()
+        if job is None:
+            raise DomainError("Job not found", 404)
+        if job["employer_id"] != employer_id:
+            raise DomainError("Forbidden", 403)
 
-    has_app = conn.execute("SELECT 1 FROM applications WHERE job_id = ? LIMIT 1", (job_id,)).fetchone()
-    has_slot = conn.execute("SELECT 1 FROM interview_slots WHERE job_id = ? LIMIT 1", (job_id,)).fetchone()
-    if has_app or has_slot:
-        raise DomainError("Job has applications or interview slots", 409)
+        has_app = conn.execute("SELECT 1 FROM applications WHERE job_id = ? LIMIT 1", (job_id,)).fetchone()
+        has_slot = conn.execute("SELECT 1 FROM interview_slots WHERE job_id = ? LIMIT 1", (job_id,)).fetchone()
+        if has_app or has_slot:
+            raise DomainError("Job has applications or interview slots", 409)
 
-    with transaction(conn):
         conn.execute("DELETE FROM jobs WHERE id = ?", (job_id,))
 
 
 def update_application_status(conn, employer_id: int, application_id: int, status: str) -> None:
-    if status not in VALID_STATUSES:
-        raise DomainError("Invalid application status", 400)
     row = conn.execute(
         """
         SELECT a.id, j.employer_id
@@ -119,6 +117,8 @@ def update_application_status(conn, employer_id: int, application_id: int, statu
         raise DomainError("Application not found", 404)
     if row["employer_id"] != employer_id:
         raise DomainError("Forbidden", 403)
+    if status not in VALID_STATUSES:
+        raise DomainError("Invalid application status", 400)
     with transaction(conn):
         conn.execute("UPDATE applications SET status = ? WHERE id = ?", (status, application_id))
 
@@ -151,7 +151,7 @@ def book_slot(conn, candidate_id: int, application_id: int, slot_id: int, *, now
             ).fetchone()
             if slot is None:
                 raise DomainError("Interview slot not found", 404)
-            if slot["employer_id"] != application["employer_id"] or slot["job_id"] != application["job_id"]:
+            if slot["employer_id"] != application["employer_id"]:
                 raise DomainError("Slot does not belong to this application", 403)
             if application["status"] != "Interviewing":
                 raise DomainError("Application must be Interviewing", 409)

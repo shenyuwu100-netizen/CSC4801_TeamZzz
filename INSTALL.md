@@ -105,7 +105,7 @@ Run the complete student-written suite non-interactively:
 python -m pytest -q
 ~~~
 
-A failing test produces a nonzero exit code.
+A failing test produces a nonzero exit code. The suite includes a synchronized booking race using two independent SQLite connections and deterministic deletion-race regression cases. All use temporary databases. CI repeats the suite inside the built, started, and seeded Docker container, then checks `/healthz`.
 
 ## Docker Build
 
@@ -137,7 +137,7 @@ Run the full unit-test suite inside the same built environment:
 docker exec csc4801-teamzzz python -m pytest -q
 ~~~
 
-Smoke test:
+Smoke test (after seed):
 
 ~~~bash
 curl http://127.0.0.1:8080/healthz

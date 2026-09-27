@@ -17,7 +17,7 @@ def normalize_skills(values: str | Iterable[str] | None) -> list[str]:
     seen: set[str] = set()
     for raw in source:
         value = str(raw).strip()
-        key = value.casefold()
+        key = value.lower()
         if value and key not in seen:
             cleaned.append(value)
             seen.add(key)
@@ -39,8 +39,8 @@ def skills_from_json(value: str | None) -> list[str]:
 
 
 def skill_match_score(candidate_skills, required_skills) -> int:
-    candidate = {item.casefold() for item in normalize_skills(candidate_skills)}
-    required = {item.casefold() for item in normalize_skills(required_skills)}
+    candidate = {item.lower() for item in normalize_skills(candidate_skills)}
+    required = {item.lower() for item in normalize_skills(required_skills)}
     if not required:
         return 100
     return (100 * len(candidate & required)) // len(required)

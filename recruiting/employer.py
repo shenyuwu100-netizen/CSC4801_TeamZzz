@@ -190,10 +190,12 @@ def application_status(application_id: int):
 @role_required("Employer")
 def slot_create():
     try:
+        job_id = int(request.form.get("job_id", "0"))
+        _owned_job_or_error(job_id)
         create_slot(
             get_db(),
             g.user["id"],
-            int(request.form.get("job_id", "0")),
+            job_id,
             parse_local_datetime(request.form.get("start_at", "")),
             parse_local_datetime(request.form.get("end_at", "")),
         )

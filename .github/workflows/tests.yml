@@ -19,3 +19,18 @@ jobs:
         run: python -m pytest -q
       - name: Build Docker image
         run: docker build -t csc4801-teamzzz .
+      - name: Verify container startup, seed, tests, and HTTP
+        run: |
+          docker run -d --name csc4801-ci csc4801-teamzzz
+          docker exec csc4801-ci flask --app recruiting reset-seed
+          docker exec csc4801-ci python -m pytest -q
+          docker exec csc4801-ci python -c "import json; from urllib.request import urlopen; assert json.load(urlopen('http://127.0.0.1:8080/healthz', timeout=10)) == {'ok': True}"
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs csc4801-ci
+      - name: Remove verification container
+        if: always()
+        run: |
+          if docker container inspect csc4801-ci >/dev/null 2>&1; then
+            docker rm -f csc4801-ci
+          fi

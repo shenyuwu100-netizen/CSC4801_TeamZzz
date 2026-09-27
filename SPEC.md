@@ -60,7 +60,7 @@ applications 1 ----- 0..1 bookings 0..1 ----- 1 interview_slots
   - unique (candidate_id, job_id).
   - status check allows exactly Pending, Interviewing, Rejected, Accepted.
 - interview_slots(id, job_id, employer_id, start_at, end_at)
-  - exact UTC ISO timestamps; each slot belongs to one owned job.
+  - exact UTC ISO timestamps; each slot has one owning employer and a source job for creation/deletion bookkeeping. Eligible applications for any job of that same employer can book it.
 - bookings(id, application_id, slot_id, booked_at)
   - unique application_id enforces at most one booking per application.
   - unique slot_id enforces at most one application per slot.
@@ -135,7 +135,7 @@ Object ownership is rechecked in backend queries/services. The UI is not conside
 3. Resume stores/replaces private raw text.
 4. Job detail submits one application.
 5. Applications list shows job, employer, status, and booking.
-6. Application detail lists free future slots only while status is Interviewing.
+6. Application detail lists the employer's free future slots across all its jobs, only while status is Interviewing and the application has no booking.
 7. Search is separate from the all-jobs dashboard, so the required dashboard remains complete.
 
 ### Employer screens
@@ -149,7 +149,7 @@ Object ownership is rechecked in backend queries/services. The UI is not conside
 
 The canonical implementation is recruiting/matching.py::skill_match_score.
 
-Skill input is split on commas, semicolons, or newlines, trimmed, empty values removed, and duplicates removed case-insensitively. Cleaned display strings are stored as JSON arrays. The score again normalizes to lowercase/casefold sets so storage formatting never changes the contract.
+Skill input is split on commas, semicolons, or newlines, trimmed, empty values removed, and duplicates removed case-insensitively. Cleaned display strings are stored as JSON arrays. The score again normalizes to lowercase sets so storage formatting never changes the contract.
 
 Let C be normalized candidate skills and R normalized required skills:
 
@@ -178,13 +178,15 @@ services.book_slot executes an explicit SQLite BEGIN IMMEDIATE transaction. Insi
 
 1. application exists;
 2. candidate owns the application;
-3. slot exists and belongs to the same job/employer;
+3. slot exists and belongs to the application's employer (the source job may differ);
 4. status is Interviewing;
 5. slot remains in the future;
 6. application has no booking;
 7. slot has no booking.
 
 The insert is additionally protected by UNIQUE(application_id) and UNIQUE(slot_id) in the database. Thus competing writers cannot both commit the same slot. A losing attempt returns HTTP 409 / domain conflict with the exact message **Slot already booked**. If an application later leaves Interviewing, status update does not touch its booking.
+
+Deletion also acquires BEGIN IMMEDIATE before checking ownership and dependent records. A booking or application that commits before deletion is observed under the lock and produces 409; checks and deletion cannot be separated by another writer. Existing records and bookings are retained on conflict.
 
 ## Security Controls
 

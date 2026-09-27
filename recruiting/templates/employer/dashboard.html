@@ -23,8 +23,9 @@
 
 <section class="panel">
   <h2>Create 30-minute interview availability</h2>
+  <p class="muted">Availability is shared across your jobs. The selected job records where the slot was created.</p>
   <form method="post" action="{{ url_for('employer.slot_create') }}" class="form-grid">
-    <label>Job
+    <label>Source job
       <select name="job_id" required>
         {% for job in jobs %}<option value="{{ job.id }}">{{ job.title }}</option>{% endfor %}
       </select>
@@ -37,7 +38,7 @@
   <h3>Slots</h3>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Job</th><th>Start</th><th>End</th><th>State</th><th></th></tr></thead>
+      <thead><tr><th>Source job</th><th>Start</th><th>End</th><th>State</th><th></th></tr></thead>
       <tbody>
       {% for slot in slots %}
         <tr>

@@ -180,13 +180,12 @@ def application_detail(application_id: int):
             SELECT s.id, s.start_at, s.end_at
             FROM interview_slots AS s
             LEFT JOIN bookings AS b ON b.slot_id = s.id
-            WHERE s.job_id = ?
-              AND s.employer_id = ?
+            WHERE s.employer_id = ?
               AND s.start_at > ?
               AND b.id IS NULL
             ORDER BY s.start_at, s.id
             """,
-            (application["job_id"], application["employer_id"], now_text),
+            (application["employer_id"], now_text),
         ).fetchall()
 
     return render_template(
