@@ -11,6 +11,59 @@ from .matching import skills_to_json
 DEMO_PASSWORD = "DemoPass123!"
 
 
+def ensure_deployment_demo_user(
+    conn,
+    *,
+    username: str,
+    password: str,
+    role: str = "Candidate",
+) -> None:
+    if role not in {"Candidate", "Employer"}:
+        raise ValueError("Deployment demo role must be Candidate or Employer")
+
+    created = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    with transaction(conn):
+        row = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
+        if row is None:
+            cursor = conn.execute(
+                "INSERT INTO users(username, password_hash, role, created_at) VALUES (?, ?, ?, ?)",
+                (username, generate_password_hash(password, method="scrypt"), role, created),
+            )
+            user_id = int(cursor.lastrowid)
+        else:
+            user_id = int(row["id"])
+            conn.execute(
+                "UPDATE users SET password_hash = ?, role = ? WHERE id = ?",
+                (generate_password_hash(password, method="scrypt"), role, user_id),
+            )
+
+        if role == "Candidate":
+            conn.execute("DELETE FROM company_profiles WHERE user_id = ?", (user_id,))
+            conn.execute(
+                """
+                INSERT INTO candidate_profiles(user_id, display_name, skills_json, resume_text)
+                VALUES (?, 'Owner Demo', '[]', '')
+                ON CONFLICT(user_id) DO UPDATE SET
+                    display_name = excluded.display_name,
+                    skills_json = excluded.skills_json,
+                    resume_text = excluded.resume_text
+                """,
+                (user_id,),
+            )
+        else:
+            conn.execute("DELETE FROM candidate_profiles WHERE user_id = ?", (user_id,))
+            conn.execute(
+                """
+                INSERT INTO company_profiles(user_id, company_name, description)
+                VALUES (?, 'Owner Demo Company', '')
+                ON CONFLICT(user_id) DO UPDATE SET
+                    company_name = excluded.company_name,
+                    description = excluded.description
+                """,
+                (user_id,),
+            )
+
+
 def seed_demo_data(conn) -> None:
     created = "2026-09-27T00:00:00+00:00"
 

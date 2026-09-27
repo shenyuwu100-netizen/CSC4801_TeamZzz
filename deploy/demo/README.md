@@ -27,6 +27,10 @@ Copy-Item deploy\demo\.env.example deploy\demo\.env
 
 Replace `DEMO_SECRET_KEY` with a random secret, then:
 
+- optionally set `DEMO_PERSONAL_USERNAME` and `DEMO_PERSONAL_PASSWORD` for one deployment-only fixed demo account;
+- keep those values only in the untracked `.env` file; they are intentionally not committed to GitHub;
+- `DEMO_PERSONAL_ROLE` defaults to `Candidate`.
+
 ```powershell
 docker compose -f deploy\demo\docker-compose.yml --env-file deploy\demo\.env up -d --build
 ```
@@ -46,3 +50,5 @@ The host scripts under `deploy/windows/` are used by Windows Task Scheduler to r
 ```
 
 The reset affects only the isolated public demo database.
+
+If a deployment-only fixed demo account is configured, the reset command recreates it immediately after restoring the deterministic course seed.

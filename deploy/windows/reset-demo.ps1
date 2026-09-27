@@ -15,6 +15,11 @@ if ($LASTEXITCODE -ne 0) {
     throw "Demo reset failed with exit code $LASTEXITCODE"
 }
 
+docker exec $container flask --app recruiting ensure-demo-user
+if ($LASTEXITCODE -ne 0) {
+    throw "Deployment demo user restore failed with exit code $LASTEXITCODE"
+}
+
 $response = Invoke-WebRequest 'http://127.0.0.1:18084/healthz' -NoProxy -TimeoutSec 5
 if ($response.StatusCode -ne 200) {
     throw "Demo health check returned HTTP $($response.StatusCode)"

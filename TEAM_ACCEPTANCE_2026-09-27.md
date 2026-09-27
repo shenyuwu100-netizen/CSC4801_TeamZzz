@@ -176,7 +176,8 @@ Employer 可以：
 - Contract regression：14 / 14 passed
 - 其余 auth/matching/security/workflow：17 / 17 passed
 - scheduling：6 / 6 passed
-- 合计：**37 / 37 passed**
+- deployment demo account：2 / 2 passed
+- 合计：**39 / 39 passed**
 - `git diff --check`：通过
 
 ### Docker
@@ -187,7 +188,8 @@ Employer 可以：
 - Contract regression：14 / 14 passed
 - 其余 auth/matching/security/workflow：17 / 17 passed
 - scheduling：6 / 6 passed
-- 合计：**37 / 37 passed**
+- deployment demo account：2 / 2 passed
+- 合计：**39 / 39 passed**
 
 ### 在线演示
 
@@ -197,6 +199,7 @@ Employer 可以：
 - demo 数据库与本地开发/测试数据库隔离。
 - 容器重启会自动 `reset-seed`，Windows 计划任务每天 04:00 再执行一次确定性重置。
 - demo session cookie 使用 `Secure + HttpOnly + SameSite=Lax`。
+- deployment-only 固定 demo 账号由未跟踪的 `.env` 提供，reset/restart 后自动恢复，真实账号配置不会提交到 GitHub。
 
 ### 课程规范
 

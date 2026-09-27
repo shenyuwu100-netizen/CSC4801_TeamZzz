@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
 import click
 from flask import Flask, current_app, g
+from flask.cli import with_appcontext
 
 
 def get_db() -> sqlite3.Connection:
@@ -68,12 +70,14 @@ def transaction(conn: sqlite3.Connection, *, immediate: bool = False):
 
 
 @click.command("init-db")
+@with_appcontext
 def init_db_command() -> None:
     init_db()
     click.echo("Database schema initialized.")
 
 
 @click.command("reset-seed")
+@with_appcontext
 def reset_seed_command() -> None:
     from .seed import seed_demo_data
 
@@ -82,7 +86,29 @@ def reset_seed_command() -> None:
     click.echo("Database reset and deterministic demo data seeded.")
 
 
+@click.command("ensure-demo-user")
+@with_appcontext
+def ensure_demo_user_command() -> None:
+    from .seed import ensure_deployment_demo_user
+
+    username = os.environ.get("DEMO_PERSONAL_USERNAME", "").strip()
+    password = os.environ.get("DEMO_PERSONAL_PASSWORD", "")
+    role = os.environ.get("DEMO_PERSONAL_ROLE", "Candidate").strip() or "Candidate"
+    if not username and not password:
+        click.echo("No deployment demo user configured; skipping.")
+        return
+    if not username or not password:
+        raise click.ClickException("Both DEMO_PERSONAL_USERNAME and DEMO_PERSONAL_PASSWORD are required")
+
+    try:
+        ensure_deployment_demo_user(get_db(), username=username, password=password, role=role)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    click.echo("Deployment demo user ensured.")
+
+
 def init_app(app: Flask) -> None:
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(reset_seed_command)
+    app.cli.add_command(ensure_demo_user_command)

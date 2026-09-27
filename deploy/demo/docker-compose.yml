@@ -13,12 +13,15 @@ services:
       SECRET_KEY: ${DEMO_SECRET_KEY}
       DEMO_MODE: "true"
       SESSION_COOKIE_SECURE: "true"
+      DEMO_PERSONAL_USERNAME: ${DEMO_PERSONAL_USERNAME:-}
+      DEMO_PERSONAL_PASSWORD: ${DEMO_PERSONAL_PASSWORD:-}
+      DEMO_PERSONAL_ROLE: ${DEMO_PERSONAL_ROLE:-Candidate}
     volumes:
       - csc4801_demo_data:/data
     command:
       - /bin/sh
       - -lc
-      - flask --app recruiting reset-seed && exec waitress-serve --call --listen=0.0.0.0:8080 recruiting:create_app
+      - flask --app recruiting reset-seed && flask --app recruiting ensure-demo-user && exec waitress-serve --call --listen=0.0.0.0:8080 recruiting:create_app
     read_only: true
     tmpfs:
       - /tmp
